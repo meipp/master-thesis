@@ -1,0 +1,9 @@
+*.aux
+*.log
+*.out
+*.toc
+*.pyg
+*.nav
+*.snm
+*.vrb
+pdfa.xmpi
