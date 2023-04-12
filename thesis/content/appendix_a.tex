@@ -1,0 +1,368 @@
+\chapter{Benchmarks} \label{appendix_benchmarks}
+
+This chapter shows the benchmark results as produced by ZaligVinder. ZaligVinder partitions the benchmark sets into subsets, so-called tracks. \texttt{benchmarkset-1} has the track \texttt{kaluza} which corresponds with the instances of \texttt{benchmarkset-1} originally from the Kaluza benchmark set. Because of ZaligVinder's naming conventions, we refer to \texttt{benchmarkset-2\:\textbackslash\:benchmarkset-1} as \texttt{benchmarkset-2-without-1}.
+
+\section{benchmarkset-1}
+
+Track: benchmarkset-1/joacosuite
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 2 & 0 & 0 & 0 & 0 & 2 & 459 & 459 \\
+CVC5 & 2 & 0 & 0 & 0 & 0 & 2 & 563 & 563 \\
+Z3seq & 2 & 0 & 0 & 0 & 4 & 2 & 563 & 563 \\
+Z3str3 & 2 & 0 & 0 & 0 & 4 & 2 & 301 & 301 \\
+woorpje & 0 & 0 & 2 & 0 & 0 & 2 & 194 & 194 \\
+noodler & 0 & 0 & 2 & 0 & 0 & 2 & 2254 & 2254 \\
+nielsen-transformation & 2 & 0 & 0 & 0 & 0 & 2 & 31 & 31 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-1/kaluza
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+CVC4 & 323 & 0 & 0 & 0 & 0 & 323 & 40137 & 40137 \\
+CVC5 & 323 & 0 & 0 & 0 & 0 & 323 & 40894 & 40894 \\
+Z3seq & 323 & 0 & 0 & 0 & 0 & 323 & 116686 & 116686 \\
+Z3str3 & 323 & 0 & 0 & 0 & 0 & 323 & 122030 & 122030 \\
+woorpje & 323 & 0 & 0 & 0 & 0 & 323 & 118300 & 118300 \\
+noodler & 0 & 0 & 323 & 0 & 0 & 323 & 3477941 & 3477941 \\
+nielsen-transformation & 323 & 0 & 0 & 0 & 0 & 323 & 29044 & 29044 \\
+\end{tabular}
+}
+
+\newpage
+
+Track: benchmarkset-1/slothtests
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 1 & 4 & 0 & 0 & 0 & 5 & 810 & 810 \\
+CVC5 & 1 & 4 & 0 & 0 & 0 & 5 & 887 & 887 \\
+Z3seq & 2 & 2 & 0 & 1 & 1 & 5 & 20889 & 889 \\
+Z3str3 & 2 & 2 & 0 & 1 & 1 & 5 & 21017 & 1017 \\
+woorpje & 3 & 0 & 1 & 1 & 2 & 5 & 23362 & 3362 \\
+noodler & 1 & 1 & 3 & 0 & 0 & 5 & 15861 & 15861 \\
+nielsen-transformation & 1 & 2 & 0 & 2 & 0 & 5 & 40207 & 207 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-1/stringfuzzregextransformed
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 418 & 1392 & 0 & 0 & 0 & 1810 & 198491 & 198491 \\
+CVC5 & 418 & 1392 & 0 & 0 & 0 & 1810 & 204621 & 204621 \\
+Z3seq & 418 & 1392 & 0 & 0 & 50 & 1810 & 725639 & 725639 \\
+Z3str3 & 418 & 1392 & 0 & 0 & 50 & 1810 & 806071 & 806071 \\
+woorpje & 67 & 639 & 678 & 426 & 124 & 1810 & 13170095 & 4650095 \\
+noodler & 239 & 820 & 308 & 443 & 0 & 1810 & 24299726 & 15439510 \\
+nielsen-transformation & 418 & 1392 & 0 & 0 & 0 & 1810 & 182150 & 182150 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-1/z3\_regression
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 3 & 4 & 0 & 0 & 0 & 7 & 400 & 400 \\
+CVC5 & 3 & 4 & 0 & 0 & 0 & 7 & 366 & 366 \\
+Z3seq & 3 & 4 & 0 & 0 & 0 & 7 & 1605 & 1605 \\
+Z3str3 & 3 & 4 & 0 & 0 & 0 & 7 & 1555 & 1555 \\
+woorpje & 0 & 4 & 3 & 0 & 0 & 7 & 7932 & 7932 \\
+noodler & 3 & 3 & 1 & 0 & 0 & 7 & 21018 & 21018 \\
+nielsen-transformation & 3 & 4 & 0 & 0 & 0 & 7 & 376 & 376 \\
+\end{tabular}
+}
+~\\
+Total
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout\\
+\hline
+CVC4 & 747 & 1400 & 0 & 0 & 0 & 2147 & 240297 & 240297\\
+CVC5 & 747 & 1400 & 0 & 0 & 0 & 2147 & 247331 & 247331\\
+Z3seq & 748 & 1398 & 0 & 1 & 55 & 2147 & 865382 & 845382\\
+Z3str3 & 748 & 1398 & 0 & 1 & 55 & 2147 & 950974 & 930974\\
+woorpje & 393 & 643 & 684 & 427 & 126 & 2147 & 13319883 & 4779883\\
+noodler & 243 & 824 & 637 & 443 & 0 & 2147 & 27816800 & 18956584\\
+nielsen-transformation & 747 & 1398 & 0 & 2 & 0 & 2147 & 251808 & 211808\\
+\end{tabular}
+}
+
+Benchmark took 20 minutes, 5 seconds
+
+\newpage
+
+\section{benchmarkset-2}
+
+Track: benchmarkset-2/cashewsuite
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 121 & 0 & 0 & 0 & 0 & 121 & 12706 & 12706 \\
+CVC5 & 121 & 0 & 0 & 0 & 0 & 121 & 13384 & 13384 \\
+Z3seq & 121 & 0 & 0 & 0 & 0 & 121 & 41413 & 41413 \\
+Z3str3 & 121 & 0 & 0 & 0 & 0 & 121 & 42507 & 42507 \\
+woorpje & 121 & 0 & 0 & 0 & 0 & 121 & 36453 & 36453 \\
+noodler & 121 & 0 & 0 & 0 & 0 & 121 & 1219908 & 1219908 \\
+nielsen-transformation & 121 & 0 & 0 & 0 & 0 & 121 & 11903 & 11903 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-2/kaluza
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 323 & 0 & 0 & 0 & 0 & 323 & 38734 & 38734 \\
+CVC5 & 323 & 0 & 0 & 0 & 0 & 323 & 41070 & 41070 \\
+Z3seq & 323 & 0 & 0 & 0 & 0 & 323 & 115946 & 115946 \\
+Z3str3 & 323 & 0 & 0 & 0 & 0 & 323 & 123330 & 123330 \\
+woorpje & 323 & 0 & 0 & 0 & 0 & 323 & 121773 & 121773 \\
+noodler & 0 & 0 & 323 & 0 & 0 & 323 & 3406691 & 3406691 \\
+nielsen-transformation & 323 & 0 & 0 & 0 & 0 & 323 & 30998 & 30998 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-2/slothtests
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 3 & 5 & 0 & 0 & 0 & 8 & 1234 & 1234 \\
+CVC5 & 3 & 5 & 0 & 0 & 0 & 8 & 1407 & 1407 \\
+Z3seq & 4 & 3 & 0 & 1 & 1 & 8 & 22224 & 2224 \\
+Z3str3 & 4 & 3 & 0 & 1 & 1 & 8 & 22239 & 2239 \\
+woorpje & 4 & 0 & 2 & 2 & 2 & 8 & 45100 & 5100 \\
+noodler & 2 & 2 & 4 & 0 & 0 & 8 & 33160 & 33160 \\
+nielsen-transformation & 3 & 3 & 0 & 2 & 0 & 8 & 40869 & 869 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-2/stringfuzzregextransformed
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 418 & 1392 & 0 & 0 & 0 & 1810 & 195276 & 195276 \\
+CVC5 & 418 & 1392 & 0 & 0 & 0 & 1810 & 201724 & 201724 \\
+Z3seq & 418 & 1392 & 0 & 0 & 50 & 1810 & 695118 & 695118 \\
+Z3str3 & 418 & 1392 & 0 & 0 & 50 & 1810 & 778418 & 778418 \\
+woorpje & 67 & 643 & 681 & 419 & 125 & 1810 & 12886536 & 4506536 \\
+noodler & 257 & 862 & 317 & 374 & 0 & 1810 & 23735000 & 16254782 \\
+nielsen-transformation & 418 & 1392 & 0 & 0 & 0 & 1810 & 171385 & 171385 \\
+\end{tabular}
+}
+
+Track: benchmarkset-2/woorpje
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 160 & 4 & 0 & 1 & 0 & 165 & 58997 & 38997 \\
+CVC5 & 160 & 4 & 0 & 1 & 0 & 165 & 70517 & 50517 \\
+Z3seq & 149 & 4 & 0 & 12 & 0 & 165 & 418467 & 178467 \\
+Z3str3 & 161 & 4 & 0 & 0 & 0 & 165 & 68214 & 68214 \\
+woorpje & 154 & 0 & 4 & 7 & 0 & 165 & 672842 & 532842 \\
+noodler & 137 & 4 & 11 & 13 & 0 & 165 & 2692342 & 2432342 \\
+nielsen-transformation & 116 & 3 & 0 & 46 & 0 & 165 & 1208948 & 288948 \\
+\end{tabular}
+}
+
+\newpage
+
+Track: benchmarkset-2/joacosuite
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 2 & 0 & 0 & 0 & 0 & 2 & 646 & 646 \\
+CVC5 & 2 & 0 & 0 & 0 & 0 & 2 & 721 & 721 \\
+Z3seq & 2 & 0 & 0 & 0 & 4 & 2 & 454 & 454 \\
+Z3str3 & 2 & 0 & 0 & 0 & 4 & 2 & 435 & 435 \\
+woorpje & 0 & 0 & 2 & 0 & 0 & 2 & 227 & 227 \\
+noodler & 0 & 0 & 2 & 0 & 0 & 2 & 2300 & 2300 \\
+nielsen-transformation & 2 & 0 & 0 & 0 & 0 & 2 & 72 & 72 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-2/stringfuzz
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 0 & 80 & 0 & 0 & 0 & 80 & 13707 & 13707 \\
+CVC5 & 0 & 80 & 0 & 0 & 0 & 80 & 17936 & 17936 \\
+Z3seq & 0 & 0 & 0 & 80 & 0 & 80 & 1600000 & 0 \\
+Z3str3 & 0 & 0 & 4 & 76 & 0 & 80 & 1521530 & 1530 \\
+woorpje & 0 & 0 & 1 & 79 & 0 & 80 & 1580695 & 695 \\
+noodler & 0 & 11 & 6 & 63 & 0 & 80 & 1559094 & 299094 \\
+nielsen-transformation & 0 & 45 & 0 & 35 & 0 & 80 & 866514 & 166514 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-2/z3\_regression
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 28 & 10 & 0 & 0 & 0 & 38 & 5243 & 5243 \\
+CVC5 & 28 & 10 & 0 & 0 & 0 & 38 & 7621 & 7621 \\
+Z3seq & 28 & 10 & 0 & 0 & 0 & 38 & 14800 & 14800 \\
+Z3str3 & 28 & 9 & 1 & 0 & 0 & 38 & 14964 & 14964 \\
+woorpje & 24 & 8 & 5 & 1 & 0 & 38 & 66538 & 46538 \\
+noodler & 27 & 9 & 2 & 0 & 0 & 38 & 277904 & 277904 \\
+nielsen-transformation & 28 & 10 & 0 & 0 & 0 & 38 & 40963 & 40963 \\
+\end{tabular}
+}
+~\\
+Total
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout\\
+\hline
+CVC4 & 1055 & 1491 & 0 & 1 & 0 & 2547 & 326543 & 306543\\
+CVC5 & 1055 & 1491 & 0 & 1 & 0 & 2547 & 354380 & 334380\\
+Z3seq & 1045 & 1409 & 0 & 93 & 55 & 2547 & 2908422 & 1048422\\
+Z3str3 & 1057 & 1408 & 5 & 77 & 55 & 2547 & 2571637 & 1031637\\
+woorpje & 693 & 651 & 695 & 508 & 127 & 2547 & 15410164 & 5250164\\
+noodler & 544 & 888 & 665 & 450 & 0 & 2547 & 32926399 & 23926181\\
+nielsen-transformation & 1011 & 1453 & 0 & 83 & 0 & 2547 & 2371652 & 711652\\
+\end{tabular}
+}
+~\\
+Benchmark took 26 minutes, 25 seconds
+
+\newpage
+
+\section{benchmarkset-2\:\textbackslash\:benchmarkset-1}
+
+Track: benchmarkset-2-without-1/cashewsuite
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 121 & 0 & 0 & 0 & 0 & 121 & 10697 & 10697 \\
+CVC5 & 121 & 0 & 0 & 0 & 0 & 121 & 12488 & 12488 \\
+Z3seq & 121 & 0 & 0 & 0 & 0 & 121 & 40995 & 40995 \\
+Z3str3 & 121 & 0 & 0 & 0 & 0 & 121 & 40944 & 40944 \\
+woorpje & 121 & 0 & 0 & 0 & 0 & 121 & 36876 & 36876 \\
+woorpje-levis & 121 & 0 & 0 & 0 & 0 & 121 & 43058 & 43058 \\
+noodler & 121 & 0 & 0 & 0 & 0 & 121 & 988793 & 988793 \\
+nielsen-transformation & 121 & 0 & 0 & 0 & 0 & 121 & 9789 & 9789 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-2-without-1/slothtests
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 2 & 1 & 0 & 0 & 0 & 3 & 60 & 60 \\
+CVC5 & 2 & 1 & 0 & 0 & 0 & 3 & 45 & 45 \\
+Z3seq & 2 & 1 & 0 & 0 & 0 & 3 & 370 & 370 \\
+Z3str3 & 2 & 1 & 0 & 0 & 0 & 3 & 387 & 387 \\
+woorpje & 1 & 0 & 1 & 1 & 0 & 3 & 20284 & 284 \\
+woorpje-levis & 1 & 1 & 1 & 0 & 0 & 3 & 386 & 386 \\
+noodler & 1 & 1 & 1 & 0 & 0 & 3 & 4261 & 4261 \\
+nielsen-transformation & 2 & 1 & 0 & 0 & 0 & 3 & 268 & 268 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-2-without-1/woorpje
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 160 & 4 & 0 & 1 & 0 & 165 & 61777 & 41777 \\
+CVC5 & 160 & 4 & 0 & 1 & 0 & 165 & 72221 & 52221 \\
+Z3seq & 149 & 4 & 0 & 12 & 0 & 165 & 430195 & 190195 \\
+Z3str3 & 161 & 4 & 0 & 0 & 0 & 165 & 67706 & 67706 \\
+woorpje & 153 & 0 & 4 & 8 & 0 & 165 & 775557 & 615557 \\
+woorpje-levis & 154 & 4 & 6 & 1 & 0 & 165 & 113009 & 93009 \\
+noodler & 135 & 4 & 11 & 15 & 0 & 165 & 2487786 & 2187786 \\
+nielsen-transformation & 116 & 3 & 0 & 46 & 0 & 165 & 1205558 & 285558 \\
+\end{tabular}
+}
+~\\
+Track: benchmarkset-2-without-1/stringfuzz
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 0 & 80 & 0 & 0 & 0 & 80 & 13641 & 13641 \\
+CVC5 & 0 & 80 & 0 & 0 & 0 & 80 & 19572 & 19572 \\
+Z3seq & 0 & 0 & 0 & 80 & 0 & 80 & 1600000 & 0 \\
+Z3str3 & 0 & 0 & 4 & 76 & 0 & 80 & 1521626 & 1626 \\
+woorpje & 0 & 0 & 1 & 79 & 0 & 80 & 1580682 & 682 \\
+woorpje-levis & 0 & 80 & 0 & 0 & 0 & 80 & 37558 & 37558 \\
+noodler & 0 & 9 & 6 & 65 & 0 & 80 & 1573135 & 273135 \\
+nielsen-transformation & 0 & 44 & 0 & 36 & 0 & 80 & 859710 & 139710 \\
+\end{tabular}
+}
+
+\newpage
+
+Track: benchmarkset-2-without-1/z3\_regression
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT Solver Calls & Total Time & Total Time w/o Timeout \\
+\hline
+CVC4 & 25 & 6 & 0 & 0 & 0 & 31 & 4808 & 4808 \\
+CVC5 & 25 & 6 & 0 & 0 & 0 & 31 & 6655 & 6655 \\
+Z3seq & 25 & 6 & 0 & 0 & 0 & 31 & 13564 & 13564 \\
+Z3str3 & 25 & 5 & 1 & 0 & 0 & 31 & 12458 & 12458 \\
+woorpje & 24 & 4 & 2 & 1 & 0 & 31 & 50611 & 30611 \\
+woorpje-levis & 24 & 5 & 2 & 0 & 1 & 31 & 12806 & 12806 \\
+noodler & 24 & 6 & 1 & 0 & 0 & 31 & 202092 & 202092 \\
+nielsen-transformation & 25 & 6 & 0 & 0 & 0 & 31 & 36634 & 36634 \\
+\end{tabular}
+}
+~\\
+Total
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & SMT
+Solver Calls & Total Time & Total Time w/o Timeout\\
+\hline
+CVC4 & 308 & 91 & 0 & 1 & 0 & 400 & 90983 & 70983\\
+CVC5 & 308 & 91 & 0 & 1 & 0 & 400 & 110981 & 90981\\
+Z3seq & 297 & 11 & 0 & 92 & 0 & 400 & 2085124 & 245124\\
+Z3str3 & 309 & 10 & 5 & 76 & 0 & 400 & 1643121 & 123121\\
+woorpje & 299 & 4 & 8 & 89 & 0 & 400 & 2464010 & 684010\\
+woorpje-levis & 300 & 90 & 9 & 1 & 1 & 400 & 206817 & 186817\\
+noodler & 281 & 20 & 19 & 80 & 0 & 400 & 5256067 & 3656067\\
+nielsen-transformation & 264 & 54 & 0 & 82 & 0 & 400 & 2111959 & 471959\\
+\end{tabular}
+}
+
+~\\
+Benchmark took 6 minutes, 15 seconds

@@ -1,0 +1,14 @@
+\chapter{Conclusion} \label{ch_conclusion}
+
+We presented an algorithm to solve regex-constrained as well as unconstrained word equations and provided a reference implementation. We compiled and published three benchmark sets specialized for Nielsen-based approaches. Our implementation outperforms current state-of-the-art solvers on quadratic, regex-constrained word equations. We conclude that our approach is best applied as a tactic.
+
+While this thesis provided an initial proof of concept showing the viability of our approach, much future work can still be done.
+
+Firstly, our solver supports neither length constraints nor equation systems containing more than one equation. This means we are not compatible with the entire SMT-LIB standard and thus cannot compete in string solving competitions.
+
+Secondly, this solver is currently implemented as a standalone solver. As explained earlier, it would make most sense to implement it as a solver tactic for either one of the state-of-the-art solvers or in a portfolio solver.
+
+Lastly, one could extend the algorithm in multiple ways.
+For once, we only implemented Brzozowski derivatives. One could instead implement transition regexes to see whether their claimed advantage \cite{transition-regex} also holds within our approach. Furthermore, we noted that Dijkstra's algorithm can be used when given a heuristic. One could try different heuristics ranking word equations in terms of prospected solvability.
+Finally, we note that simple length constraints can also be expressed as derivative-based constraints. A future version of our solver could therefore possibly also handle length constraints.
+One last drawback of our algorithm is that it is not guaranteed to terminate on some unsatisfiable equations. This problem can be solved by making use of regex quotients.

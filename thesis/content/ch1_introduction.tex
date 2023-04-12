@@ -1,0 +1,34 @@
+\chapter{Introduction}
+
+The field of string solving deals with finding solutions for string-related problems, where \textit{strings} are sequences of symbols.
+These problems can take many forms, but they often involve finding patterns, checking some properties of the strings or transforming the strings in some way.
+
+This includes but is not restricted to:
+\begin{itemize}
+    \item sorting strings by an ordering relation, such as lexicographic order
+    \item finding out if a string contains a specific word
+    \item finding out if a string follows a specific pattern
+    \item compressing/decompressing a string to store it efficiently
+    \item checking the syntax of a string to ensure that it follows certain rules, such as those of a programming language or a formal language
+    \item solving equations where the variables take string values
+\end{itemize}
+
+String solving is an active area of research with many open problems still to be explored. It has a wide range of applications in computer science as well as in related fields.
+
+In this work, we will focus on the last problem: Solving equations of strings. This problem does not deal with numeric equations but instead with so-called \textit{word equations} in which the variables take symbolic values from the monoid $\Sigma^*$. Consider the equation $abxb = ybx$ where $a$ and $b$ are terminal symbols from $\Sigma$ and $x$ and $y$ are variables that can take any string value. This equation is satisfied for $x = b, y = ab$. Let us consider another equation: $xa = byx$. It does not have a solution because no matter which values we choose for $x$ and $y$ the two sides are never equal.
+
+Usually, we add additional rules -- so-called \textit{constraints} -- to the variables. One such constraint could be that $x$ must be at most 10 characters long or $y$ must satisfy the regular expression $ab*$.
+
+Word equations are used to model problems in cyber security and formal verification. In the former, problems can be modeled in a way so that the solutions to the equations correspond with attack vectors that can be used to breach security.
+
+This work will deal with one specific subproblem of solving word equations. We will solve word equations where the variables have regular expression constraints. For this, we take Nielsen's algorithm \cite{nielsen1917} for solving word equations without constraints and extend it with Brzozowski's notion of regex derivatives \cite{brzozowski} to solve equations with regex constraints.
+To test the viability of our approach, we provide a Haskell implementation of a string solver that follows this method. We benchmark against the state-of-the-art solvers CVC \cite{cvc4,cvc5} and Z3 \cite{z3} to find out under which circumstances our approach can compete with them.
+
+Usually, string solvers solve word equations and regex constraints separately. We are aware of only one approach -- Noodler \cite{noodler} -- that solves equations and constraints in a joined manner by using an automata structure. Our contribution is to provide a second approach that solves equations and constraints together by using the Nielsen transformation and Brzozowski derivatives. The goal of this work is to present an algorithm, provide an implementation and evaluate its performance.
+
+This thesis is structured as follows. In chapter \ref{ch_foundations}, we introduce some basic notation and give a rough overview of string solving and related strategies. Subsequently, we have a detailed look at the Nielsen transformation and Brzozowski's algorithm for regex matching.
+In chapter \ref{ch_approach}, we present our modification to the Nielsen transformation to extend it to regex-constrained variables and prove its correctness.
+In chapter \ref{ch_implementation}, we give a technical report on our Haskell implementation of the algorithm presented in chapter \ref{ch_approach}.
+In chapter \ref{ch_benchmarks}, we explain the setup of our benchmarks. First, we present three benchmark sets. Then, we introduce the other string solvers we benchmark against. Finally, we explain how the experiment is going to be conducted.
+In chapter \ref{ch_results}, we document and interpret the results of our benchmarks.
+Finally, in chapter \ref{ch_conclusion}, we summarize our work, draw a conclusion from our findings in chapter \ref{ch_results} and give an outlook on future work.

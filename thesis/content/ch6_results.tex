@@ -1,0 +1,137 @@
+\chapter{Results} \label{ch_results}
+In this chapter, we present the findings of our benchmarks and a subsequent analysis. We ran the benchmarks on a system with an Intel i7-7500U CPU with four cores (2.70GHz base frequency, 3.50GHz Intel Turbo Boost) and 16GB of DDR4 memory. The complete results can be found in appendix \ref{appendix_benchmarks}. We used this\footnote{https://github.com/meipp/zaligvinder/releases/tag/0.1.0} particular setup for the benchmarks.
+
+CVC, Z3 and our solver worked fine. Woorpje and Noodler had some problems with the regex-constrained equations. For Woorpje those errors are linked to the policy of guessing lengths. Noodler -- we found -- could not read the many Unicode escape sequences in the SMT-LIB files. This influences the correctness but not the time performance: A solver that immediately exits with \textit{unknown} does not get a time penalty.
+
+\section{Benchmarks}
+In this section we will present the results of the benchmarks on our three benchmark sets. The next section will give an interpretation of the results.
+
+\subsection{benchmarkset-1}
+
+\begin{figure}%[H]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & Total Time & Total Time w/o Timeout\\
+\hline
+CVC4 & 747 & 1400 & 0 & 0 & 0 & 240297 & 240297\\
+CVC5 & 747 & 1400 & 0 & 0 & 0 & 247331 & 247331\\
+Z3seq & 748 & 1398 & 0 & 1 & 55 & 865382 & 845382\\
+Z3str3 & 748 & 1398 & 0 & 1 & 55 & 950974 & 930974\\
+woorpje & 393 & 643 & 684 & 427 & 126 & 13319883 & 4779883\\
+noodler & 243 & 824 & 637 & 443 & 0 & 27816800 & 18956584\\
+nielsen-transformation & 747 & 1398 & 0 & 2 & 0 & 251808 & 211808\\
+\end{tabular}
+}
+\caption{Benchmark over \texttt{benchmarkset-1}}
+\label{fig:benchmark-1}
+\end{figure}
+
+Figure \ref{fig:benchmark-1} shows the results of the benchmark on \texttt{benchmarkset-1} in the output format of ZaligVinder. The column \textit{Satis}, \textit{NSatis}, \textit{Unknown} refer to the number of instances the solver classified as satisfiable, unsatisfiable and unknown respectively. Unknowns can be either produced when the solver outputs an explicit "unknown" or when the solver does not produce an explicit "sat" or "unsat", crashes or does not give intelligible output. \textit{Timeout} refers to the number of instances for which the solver did not terminate within 20 seconds. The column \textit{Errors} refers to the number of instances where the program crashed or error output occurred. Note that errors still get counted as satisfiable, unsatisfiable or unknown. \textit{Total Time} refers to the time (in milliseconds) each solver took to solve all instances combined -- including a penalty of 20 seconds per timeout. \textit{Total Time w/o Timeout} refers to the overall time without that penalty.
+
+The state-of-the-art solvers CVC and Z3, solve all instances without \textit{unknown}s. The Z3 solvers timeout on one instance while both CVC solvers can solve all instances within the time limit. Aside from the timeout, Z3 and CVC differ on only one other instance, with CVC classifying 747 instances and Z3 classifying 748 as satisfiable.
+The solvers Woorpje and Noodler perform poorly across all metrics. They do not reach similar classifications like CVC or Z3. They return many unknowns, timeout on relatively many instances and frequently produce errors. Ultimately, their running time is also significantly worse. While unknowns may be blamed on them not being able to read some instances, the timeouts cannot.
+Our solver, \texttt{nielsen-transformation}, is very close to the state-of-the-art solvers. We reach comparable results with the same number of satisfiable classifications as CVC and only one more timeout than Z3. Most importantly, looking at the \textit{Total Time w/o Timeout}, we outperform Z3 by far and are also slightly faster than CVC.
+
+\begin{figure}%[H]
+\begin{center}
+\resizebox{0.6 \textwidth}{!}{
+\includesvg{images/graphs/bar-1.svg}
+}
+\caption{Comparison of CVC, Z3 and our solver on \texttt{benchmarkset-1} (lower is better). \texttt{nt} refers to our solver.}
+\label{fig:barplot-1}
+\end{center}
+\end{figure}
+
+\newpage
+
+Figure \ref{fig:barplot-1} highlights the performance of our solver against CVC and Z3. The margin by which we outperform CVC is slim, but we are an order of magnitude faster than Z3.
+
+\subsection{benchmarkset-2}
+
+\begin{figure}%[H]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & Total Time & Total Time w/o Timeout\\
+\hline
+CVC4 & 1055 & 1491 & 0 & 1 & 0 & 326543 & 306543\\
+CVC5 & 1055 & 1491 & 0 & 1 & 0 & 354380 & 334380\\
+Z3seq & 1045 & 1409 & 0 & 93 & 55 & 2908422 & 1048422\\
+Z3str3 & 1057 & 1408 & 5 & 77 & 55 & 2571637 & 1031637\\
+woorpje & 693 & 651 & 695 & 508 & 127 & 15410164 & 5250164\\
+noodler & 544 & 888 & 665 & 450 & 0 & 32926399 & 23926181\\
+nielsen-transformation & 1011 & 1453 & 0 & 83 & 0 & 2371652 & 711652\\
+\end{tabular}
+}
+\caption{Benchmark over \texttt{benchmarkset-2}}
+\label{fig:benchmark-2}
+\end{figure}
+
+Figure \ref{fig:benchmark-2} shows the benchmark on \texttt{benchmarkset-2}. This includes regex-constrained and unconstrained word equations.
+We observe roughly the same patterns as in figure \ref{fig:benchmark-1}: CVC performs well with just one timeout. Woorpje and Noodler perform poorly again.
+Z3 looks very different than before: It has a significantly higher number of timeouts with 93 and 77 timeouts for Z3seq and Z3str3 respectively. One interesting observation is that Z3seq and Z3str3 behave differently. Z3seq has 16 more timeouts and one more classification as unsatisfiable, while Z3str3 has 12 more classifications as satisfiable and five more unknowns. On one hand, Z3str3 seems to be better at avoiding timeouts than Z3seq. This could be an example of the \textit{Theory-aware branching} at work. On the other hand, Z3str3 returns unknown for instances it cannot solve, while this behavior is seemingly not implemented in Z3seq.
+Our solver performs worse than CVC and roughly similar to Z3. It has 83 timeouts, placing it between Z3str3 and Z3seq. It solves less satisfiable word equations than Z3 (1011 vs. 1045/1057) but more unsatisfiable word equations (1453 vs. 1408/1409). This is interesting because our approach can only reach the result unsatisfiable after an exhaustive graph search, running the risk of timeout. In this regard, we perform better than Z3 because we have a higher number of classifications as unsatisfiable, while not showing a higher number of timeouts.
+When comparing running times, our solver still outperforms Z3, Woorpje and Noodler but is notably slower than CVC.
+
+
+\begin{figure}%[H]
+\begin{center}
+\resizebox{0.6 \textwidth}{!}{
+\includesvg{images/graphs/bar-2.svg}
+}
+\caption{Comparison of CVC, Z3 and our solver on \texttt{benchmarkset-2} (lower is better). \texttt{nt} refers to our solver.}
+\label{fig:barplot-2}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:barplot-2} shows the performance of our solver against CVC and Z3. It can be placed pretty much in the middle, outperforming Z3 by a notable margin but also getting clearly outperformed by CVC.
+
+\newpage
+
+\subsection{benchmarkset-2\:\textbackslash\:benchmarkset-1}
+
+\begin{figure}%[H]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|r|r|r|r|r|r|r}
+Solver & Satis & NSatis & Unknown & Timeout & Errors & Total Time & Total Time w/o Timeout\\
+\hline
+CVC4 & 308 & 91 & 0 & 1 & 0 & 90983 & 70983\\
+CVC5 & 308 & 91 & 0 & 1 & 0 & 110981 & 90981\\
+Z3seq & 297 & 11 & 0 & 92 & 0 & 2085124 & 245124\\
+Z3str3 & 309 & 10 & 5 & 76 & 0 & 1643121 & 123121\\
+woorpje & 299 & 4 & 8 & 89 & 0 & 2464010 & 684010\\
+woorpje-levis & 300 & 90 & 9 & 1 & 1 & 206817 & 186817\\
+noodler & 281 & 20 & 19 & 80 & 0 & 5256067 & 3656067\\
+nielsen-transformation & 264 & 54 & 0 & 82 & 0 & 2111959 & 471959\\
+\end{tabular}
+}
+\caption{Benchmark over \texttt{benchmarkset-2\:\textbackslash\:benchmarkset-1}}
+\label{fig:benchmark-2-without-1}
+\end{figure}
+
+Figure \ref{fig:benchmark-2-without-1} shows the benchmark on \texttt{benchmarkset-2\:\textbackslash\:benchmarkset-1}. CVC and Z3 behave roughly the same as they did in \ref{fig:benchmark-2}. \texttt{woorpje} reached a satisfactory number of classifications on satisfiable instances but classified almost none as unsatisfiable. Noodler and our approach are completely unsatisfactory. Still, \texttt{woorpje}, Noodler and our solver do not perform worse than Z3 in terms of timeouts. \texttt{woorpje-levis}, on the other hand, performed really well, outperforming Z3 in terms of time and approaching CVC in terms of correctness. It also outperforms \texttt{woorpje} by far.
+
+
+\begin{figure}%[H]
+\begin{center}
+\resizebox{0.6 \textwidth}{!}{
+\includesvg{images/graphs/bar-2-without-1.svg}
+}
+\caption{Comparison of CVC, Z3, woorpje-levi and our solver on \texttt{benchmarkset-2\:\textbackslash\:benchmarkset-1} (lower is better). \texttt{nt} refers to our solver.}
+\label{fig:barplot-2-without-1}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:barplot-2-without-1} shows the performance of our solver against CVC, Z3 and \texttt{woorpje-levi}. It gets outperformed by all solvers. \texttt{woorpje-levi} is placed between Z3str3 and Z3seq, showing that the Nielsen transformation as a solving strategy is competitive with Z3.
+
+\section{Interpretation}
+The interpretation of our findings is very straightforward: We perform well on \texttt{benchmarkset-1}, averagely on \texttt{benchmarkset-2} and badly on \texttt{benchmarkset-2\:\textbackslash\:benchmarkset-1}. This can be directly linked to the composition of the benchmark sets.
+
+\texttt{benchmarkset-1} fits perfectly to our problem description: Word equations with regex constraints. We solve these well and outperform every other string solver, even the highly optimized CVC solvers. This leads us to the conclusion that choosing a combined approach that solves both word equation and regex constraints at the same time gives us an edge over approaches that solve equations and constraints separately.
+
+\texttt{benchmarkset-2} consists of mainly regex-constrained word equations and some unconstrained word equations. We immediately lose our edge over CVC. We still perform well enough to beat Z3, although this can be explained by the majority of the instances being regex-constrained. We outperform the other solvers. Still, it is notable that our approach loses its clear advantage over the other solvers as soon as we move out of our niche.
+
+\texttt{benchmarkset-2\:\textbackslash\:benchmarkset-1} consists solely of unconstrained word equations. Our solver gets outperformed by the state-of-the-art solvers. This makes sense because our only advantage was the combination of regex constraints with the word equation. As soon as we lose the regex constraints, we lose all foundation we had for an advantage. Not only that but now our solver can only make use of the Nielsen transformation and has to compete with other solvers that can choose from a multitude of tactics which may include the Nielsen transformation. Subsequently, our solver performs significantly worse.
+
+\texttt{woorpje-levis} -- being competitive with Z3 -- shows that the Nielsen transformation is viable for unconstrained word equations. It also shows that our implementation is not optimal in terms of running time. This is most likely due to Woorpje being more optimized on an instruction level. Also, we model unconstrained variables as $\emptyset'$ and unnecessarily calculate their derivative.
+
+This concludes our findings. \texttt{woorpje-levis} shows that the Nielsen transformation is a valid tactic for solving unconstrained word equations. When combined with regex constraints in a combined approach, as shown by our reference implementation, the Nielsen transformation becomes a powerful tool outperforming even state-of-the-art solvers. Our approach was competitive inside of the specific niche of regex-constrained word equations. While it is not suitable as a general string solver, it could be used as a specialized tactic inside a portfolio solver.

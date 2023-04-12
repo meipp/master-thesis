@@ -1,0 +1,143 @@
+\chapter{Implementation} \label{ch_implementation}
+
+We implement a string solver that uses the algorithm specified in chapter \ref{s_algorithm} in the programming language Haskell\footnote{https://github.com/meipp/nielsen-transformation}.
+This chapter will introduce and document this solver. Readers who are not interested in technical-practical details may skip this chapter entirely.
+
+\section{Haskell}
+Haskell \cite{marlow2010haskell} is a purely functional, lazily-evaluated programming language with very expressive, declarative semantics. Purely functional means that Haskell data structures are immutable and that the language models side effects and IO as expressions. This makes optimization, verification and parallelization of Haskell programs fairly easy. Declarative means that instead of describing a process, we describe just a desired result and leave it to the runtime to evaluate our program. This makes it especially easy to write mathematical programs, as formulae can often be translated to Haskell in a very straightforward manner. Furthermore, Haskell also supports algebraic data types. The data type \texttt{Bool} can be defined in the following way:
+\begin{minted}{haskell}
+data Bool = False | True
+\end{minted}
+We introduce a new data type \texttt{Bool} whose values can either have the form \texttt{False} or \texttt{True}. For a more complex data type let us consider the data type \texttt{Either a b}. Its values encapsulate either a value of type \texttt{a} or a value of type \texttt{b}.
+\begin{minted}{haskell}
+data Either a b = Left a | Right b
+\end{minted}
+Here \texttt{a} and \texttt{b} are type variables. Values of the data type \texttt{Either String Int} for example can be constructed by writing \texttt{Left "hello"} or \texttt{Right 5}. For the above reasons, we chose Haskell as the language to implement our solver in.
+
+\section{String Solvers}
+String solvers are programs that solve string-related problems. As an input, they are given a \textit{test instance} consisting of a word equation or an instance for some other string problem. They then attempt to solve this problem in a given time interval. By convention they produce the outputs \textit{sat} if the problem is satisfiable, \textit{unsat} if unsatisfiable, \textit{unknown} if the algorithm in use cannot determine the problem's satisfiability, or \textit{timeout} if a predefined timeout has been reached.
+
+\section{SMT-LIB}
+In the string solving community, benchmarks and test instances usually come in a common file format: The SMT-LIB \cite{smtlib} format. SMT-LIB is a collaborative effort to maintain and publish a format that can be used by all solvers. SMT-LIB files all have a structure similar to this example:
+
+\begin{minted}[xleftmargin=20pt, linenos]{lisp}
+(declare-const x String)
+(declare-const y String)
+(assert (= (str.++ x "b") (str.++ "a" y "b")))
+(assert (str.in_re x (re.++ (str.to_re "a") (re.* (str.to_re "b")))))
+(assert (= (str.len y) 5))
+(check-sat)
+\end{minted}
+
+In lines 1 and 2 we declare two variables \texttt{x} and \texttt{y}. As SMT-LIB also supports other data types, we must explicitly declare \texttt{x} and \texttt{y} to be string-valued variables. Lines 3 to 5 define all logical statements we \texttt{assert} to be true. Line 3 defines the word equation $\texttt{x}b = a\texttt{y}b$. Line 4 introduces the regex constraint $\texttt{x} \in ab*$. Line 5 introduces the length constraint $|\texttt{y}| = 5$. Line 6 instructs the solver to check for satisfiability. This word equation is satisfiable with exactly one solution: $\texttt{x} = abbbbb, \texttt{y} = bbbbb$.
+
+\section{Architecture}
+
+Our solver consists of four modules:
+\begin{itemize}
+    \item Algorithmic Core
+    \item User definable Regex Theory
+    \item SMT-LIB Interface
+    \item Solver Frontend
+\end{itemize}
+
+\begin{figure}%[H]
+\begin{center}
+\includesvg{images/architecture.svg}
+\caption{Architecture}
+\label{fig:architecture}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:architecture} shows the architecture of our implementation. At its heart is the library with the generic implementation of our algorithm that can be extended by a user definable regex theory. The library can be used in Haskell programs or in most other languages, as Haskell's foreign function interface conforms to C-style function calls. The user defined regex theory is visualized as halfway part of the library and halfway on the outside because users can either use our implementation of Brzozowski's regex theory, or they can provide their own implementation. The algorithmic core is written to be completely agnostic to the regex theory used.
+
+If the user instead decides to use our implementation as a full string solver, they have to call it on an SMT-LIB file. The solver frontend calls the SMT-LIB interface on the test instance. The SMT-LIB interface parses the instance to a regex-constrained word equation. The frontend then makes a library call to determine the satisfiability of the equation and outputs one of the results \textit{sat} or \textit{unsat}. The following sections give a detailed description of the four modules.
+
+\subsection{User Definable Regex Theory}
+The core of our approach does not care about the particular regex theory. The regex theory needs only define the functions $D, \nu, \sigma, \pi$. Therefore we keep it abstract and define a type class
+
+\begin{minted}{haskell}
+class RegexTheory r where
+    derive :: Char -> r -> r
+    nullable :: r -> Bool
+    satisfiable :: r -> Bool
+    possiblePrefixes :: r -> [Char]
+\end{minted}
+
+Every data type \texttt{r} that is an instance of the class \texttt{RegexTheory}, i.e. that implements the four functions \texttt{derive}, \texttt{nullable}, \texttt{satisfiable}, \texttt{possiblePrefixes}, can now be used to constrain variables. In chapters \ref{ch_foundations} and \ref{ch_approach}, we already defined $D, \nu, \sigma, \pi$ for Brzozowski derivatives. Our implementation of Brzozowski regexes instantiates the class \texttt{RegexTheory}.
+
+\newpage
+
+Note that $\sigma$ and $\pi$ are just optimizations and are technically speaking not needed in a minimal implementation. If we want to disregard them, we can provide the default implementations
+\begin{minted}{haskell}
+satisfiable r = True
+possiblePrefixes r = sigma
+\end{minted}
+This has the effect that satisfiability checks for any regex return \texttt{True}. Unsatisfiable derivatives now do not get detected and discarded early. Still, this does not affect the correctness because unsatisfiable variables can never be deleted from the equation as they are not nullable ($\neg\sigma(p) \Rightarrow \neg\nu(p)$). Therefore, it is impossible to reduce a word equation that contains an unsatisfiable variable to $\varepsilon = \varepsilon$. The default implementation of the prefix function just returns the entire alphabet $\Sigma$. This also does not affect correctness because adding more symbols $a$ to calculate the derivative of, only results in more unsatisfiable regexes that again are ultimately not nullable.
+
+\subsection{Algorithmic Core} \label{ss_backend}
+The algorithmic core is the backend of our solver and is responsible for handling the core algorithm as defined in chapter \ref{s_algorithm}. We make the following definitions:
+
+\begin{minted}{haskell}
+data Terminal = Terminal Char
+    deriving Eq
+
+data Variable r = Variable Char r
+    deriving Eq
+\end{minted}
+
+We introduce a new datatype \texttt{Terminal}. Each \texttt{Terminal} value is parameterized by only a  \texttt{Char} value. E.g. to represent the terminal symbol $a$, we write \texttt{Terminal 'a'}.
+Similarly, we introduce \texttt{Variable r}, where \texttt{r} is a type parameter. Each variable is parameterized by a \texttt{Char}, i.e. its name, and by a regex value of type \texttt{r}. E.g. to represent the variable $x, c(x) = p$, we write \texttt{Variable 'x' p}. \texttt{deriving Eq} instructs the compiler to implement the canonical equality relation for our data types. I.e. \texttt{Terminal a == Terminal b} $\Leftrightarrow$ \texttt{a == b}.
+
+For simplicity we introduce the following type aliases.
+
+\begin{minted}{haskell}
+type Symbol r = Either Terminal (Variable r)
+
+type Sequence r = [Symbol r]
+
+type Equation r = (Sequence r, Sequence r)
+\end{minted}
+A symbol is either a terminal or a variable. A sequence is a list of symbols. An equation is a tuple of two Sequences. We can now define the function
+\begin{minted}{haskell}
+nielsen :: RegexTheory r => Equation r -> Bool
+\end{minted}
+
+\texttt{nielsen} takes a word equation (constrained by some \texttt{RegexTheory r}) and returns \texttt{True} if it is satisfiable, \texttt{False} if it is unsatisfiable. As of now, we have implemented neither a timeout feature nor parallelization. Note, that we do not have to take care of \textit{unknown}s, because our algorithm can classify any input as either \textit{sat} or \textit{unsat}.
+
+\subsection{SMT-LIB Interface}
+The SMT-LIB interface parses \texttt{.smt} files and extracts word equations from them. Currently, we only support the subset of the SMT-LIB standard necessary to handle regex-constrained word equations, namely those functions required to define regex constraints, word equations as well as the instructions \texttt{not} and \texttt{assert}. We only support variables of type \texttt{String}. Functions like \texttt{str.len} are not supported.
+
+Also, the parser is not agnostic to the regex theory and currently parses every regex constraint as a Brzozowski regex. This has the consequence that only the library is truly independent of the regex theory. For now, when using the string solver, we are bound to Brzozowski derivatives. One could solve this problem by adding a generic regex type
+\begin{minted}{haskell}
+data SmtLibRegex = Lambda
+                 | Emptyset
+                 | Symbol Char
+                 | Concatenation SmtLibRegex SmtLibRegex
+                 | Iteration SmtLibRegex
+                 | Not SmtLibRegex
+                 | And SmtLibRegex SmtLibRegex
+                 | Or SmtLibRegex SmtLibRegex
+\end{minted}
+and the accompanying type class
+\begin{minted}{haskell}
+instance FromSmtLibRegex r where
+    fromSmtLibRegex :: SmtLibRegex -> r
+\end{minted}
+The parser then parses regex constraints as values of the type \texttt{SmtLibRegex}. Those values can then get converted to our custom regex theories, as long as they provide an implementation for \texttt{fromSmtLibRegex}.
+
+\newpage
+
+\subsection{Solver Frontend}
+The frontend handles the user interaction. It takes the file path of the \texttt{.smt} file as a command line argument, invokes the parser to parse a word equation and calls \texttt{nielsen} on it. It then outputs the result to \texttt{stdout}. The frontend can be expressed in the following pseudo code fragment:
+
+\begin{minted}{bash}
+filepath <- args[1]
+equation <- SmtLibParser.parse(filepath)
+if nielsen(equation)
+    print "sat"
+else
+    print "unsat"
+\end{minted}
+
+where \texttt{args[1]} is the first command line argument, \texttt{SmtLibParser.parse} is a function that parses word equations with Brzozwski regex constraints from a file, and \texttt{nielsen} is the function introduced in section \ref{ss_backend}. Our implementation does not return \textit{unknown} on any instances and does not detect timeouts. For word equations that cannot be decided in finite time, the function \texttt{nielsen} does not terminate.

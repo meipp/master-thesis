@@ -1,0 +1,213 @@
+\chapter{Benchmarks} \label{ch_benchmarks}
+When comparing different approaches, the need arises to rank one against the other. For that, one usually employs benchmarks over benchmark sets. Benchmark sets are a collection of test instances used to evaluate the performance of algorithms. In the case of string solving, benchmark sets are usually in the SMT-LIB format and may consist of word equations, length constraints and regular expression constraints. These instances are usually either designed or curated to cover different aspects of the field. For example, one benchmark set may focus solely on small word equations with regex-constrained variables, while another may contain only very complex equations with length constraints.
+
+This chapter focuses on the setup of our benchmarks. First, we explain the creation and makeup of the benchmark sets for our experiments. Then, we introduce the other string solvers we will compete against. Finally, we introduce the benchmarking framework ZaligVinder \cite{zaligvinder} that we will use to run the benchmarks.
+
+\section{Building the Benchmark Sets}
+
+First, let us have a look at how the benchmark sets are created.
+
+\subsection{SMTQuery}
+To automatically construct benchmark sets, we used the tool SMTQuery \cite{smtquery}.
+SMTQuery allows running SQL-style queries on a predefined corpus of test instances.
+The query
+\begin{minted}{sql}
+select Name from kaluza where isQuadratic
+\end{minted}
+lists the name of all test instances from the Kaluza \cite{benchmarkset-kaluza} benchmark set in which each variable occurs at most twice.
+
+As a base corpus we use the ZaligVinder corpus \cite{zaligvinder}, which is a compilation of the following benchmark sets:
+
+\begin{center}
+\begin{tabular}{|l|r|}
+\hline
+Benchmark set & Instances \\
+\hline
+appscan \cite{benchmarkset-appscan-pisa} & 8 \\
+automatark25 \cite{benchmarkset-automatark-stringfuzzregex} & 19979 \\
+banditfuzz \cite{benchmarkset-banditfuzz} & 357 \\
+cashewsuite \cite{benchmarkset-cashew} & 394 \\
+joacosuite \cite{benchmarkset-joaco-stranger} & 94 \\
+kaluza \cite{benchmarkset-kaluza} & 47284 \\
+kauslersuite \cite{benchmarkset-kausler} & 120 \\
+Leetcode \cite{benchmarkset-leetcode} & 2666 \\
+light \cite{benchmarkset-light} & 100 \\
+nornbenchmarks \cite{benchmarkset-norn} & 1027 \\
+pisa \cite{benchmarkset-appscan-pisa} & 12 \\
+PyEx\_All \cite{benchmarkset-pyex} & 25421 \\
+slothtests \cite{benchmarkset-sloth} & 33 \\
+strangersuite \cite{benchmarkset-joaco-stranger} & 4 \\
+stringfuzz \cite{benchmarkset-stringfuzz} & 1065 \\
+stringfuzzregexgenerated \cite{benchmarkset-automatark-stringfuzzregex} & 4170 \\
+stringfuzzregextransformed \cite{benchmarkset-automatark-stringfuzzregex} & 10682 \\
+woorpje \cite{woorpje} & 809 \\
+z3\_regression \cite{benchmarkset-z3_regression} & 243 \\
+\hline
+$\Sigma$ & 114468 \\
+\hline
+\end{tabular}
+\end{center}
+
+This includes word equations -- quadratic or more complex --, regex matching, and other string problems. We will need to restrict the corpus when building our benchmark sets.
+
+\subsection{benchmarkset-1}
+Our approach solves word equations with regex-constrained variables. Thus, we are mainly interested in assessing its performance on test instances that follow this exact pattern. As the Nielsen transformation is only guaranteed to terminate on quadratic word equations \cite{manea-nielsen}, we will also restrict the benchmark set accordingly. Thus, we are interested only in \textbf{quadratic word equations with regex variable constraints}.
+This leaves us with the SMT query
+
+\begin{minted}{sql}
+select Name from * where (hasWEQ and (isQuadratic and hasRegex))
+\end{minted}
+
+\newpage
+
+This query selects all test instances over all benchmark sets for which the following restrictions hold:
+\begin{enumerate}
+    \item can be expressed as a word equation
+    \item the word equation is quadratic
+    \item the test instance contains at least one regex constraint
+\end{enumerate}
+
+This initially leaves us with 2859 out of 114468 instances. We still cannot process all of them. Therefore, we delete more files for the following reasons:
+
+\begin{center}
+\begin{tabular}{|l|r|}
+    \hline
+    Reason & Instances \\
+    \hline
+    declares Int variable & 25 \\
+    declares Bool variable & 3 \\
+    calls str.len & 422 \\
+    calls str.to\_int & 85 \\
+    contains multiple equations & 176 \\
+    contains inequality & 1 \\
+    \hline
+    $\Sigma$ & 712 \\
+    \hline
+\end{tabular}
+\end{center}
+
+This concludes the construction of the benchmark set, leaving us with 2147 files.
+
+\subsection{benchmarkset-2}
+\texttt{benchmarkset-1} deals only with word equations where at least one variable has a regex constraint. We model unconstrained variables with the catch-all constraint $\emptyset'$. To assess the performance of our approach in a more general context, we drop the restriction that our variables must have regex constraints. We are left with a set of \textbf{quadratic word equations}. We construct the \texttt{benchmarkset-2} with the SMT query
+
+\begin{minted}{sql}
+select Name from * where (hasWEQ and isQuadratic)
+\end{minted}
+
+This leaves us with initially 26315 out of 114468 instances. Again, we clear the benchmark set of unprocessable instances:
+
+\begin{center}
+\begin{tabular}{|l|r|}
+    \hline
+    Reason & Instances \\
+    \hline
+    declares Int variable & 171 \\
+    declares Bool variable & 21814 \\
+    calls str.len & 516 \\
+    calls str.to\_int & 85 \\
+    calls to ite (if-then-else) & 51 \\
+    contains multiple equations & 976 \\
+    contains inequality & 157 \\
+    \hline
+    $\Sigma$ & 23770 \\
+    \hline
+\end{tabular}
+\end{center}
+
+This concludes the construction of the benchmark set with 2547 files.
+
+We constructed this benchmark set with generality in mind, but we are limited by the fact that we only parse a subset of the SMT-LIB standard. In \texttt{benchmarkset-1} we reduced 2859 to 2147 files, a 24.9\% decrease. In \texttt{benchmarkset-2} on the other hand we have a decrease by 90.3\% going from 26315 files initially to just 2547 in the end.
+We interpret this by assuming that there are not many test instances across the literature that contain unconstrained word equations. Most instances contain regex or length constraints. Thus, it is hard to find a truly general setting because a majority of the instances seems to be special cases.
+
+\begin{figure}[H]
+\begin{center}
+\resizebox{0.5 \textwidth}{!}{
+\includesvg[]{images/graphs/pie.svg}
+}
+\caption{Makeup of \texttt{benchmarkset-2}, divided in regex and non-regex word equations}
+\label{fig:pie}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:pie} visualizes the makeup of \texttt{benchmarkset-2}. \texttt{benchmarkset-2} Is a superset of \texttt{benchmarkset-1}. It consists of the 2147 regex-constrained instances from \texttt{benchmarkset-1} and 400 more unconstrained instances.
+
+\subsection{benchmarkset-2\:\textbackslash\:benchmarkset-1}
+We constructed \texttt{benchmarkset-2} to assess our approach on a more general setting. Seeing that \texttt{benchmarkset-2} is bigger than \texttt{benchmarkset-1} by only 400 files (18.6\% increase), a quantitative analysis would be heavily biased towards instances with regex constraints, skewing our results. Therefore, we will also benchmark on the set difference \texttt{benchmarkset-2\:\textbackslash\:benchmarkset-1}, consisting only of quadratic, unconstrained instances that contain one word equation. This set should show the performance of our approach in a general setting that is not our algorithmic niche.
+
+\newpage
+
+\section{Other String Solvers}
+This section discusses and introduces the string solvers we will benchmark against. We compare our approach to the state-of-the-art \cite{zaligvinder} solvers CVC4 \cite{cvc4}, Z3str3 \cite{z3str3} and Z3seq \cite{z3}. We also include the successor CVC5 \cite{cvc5}. Additionally, we compare to two other, less general solvers -- Woorpje \cite{woorpje} and Noodler \cite{noodler} -- because they share some interesting similarities with our approach.
+
+\subsection{CVC4}
+CVC4 \cite{cvc4}, the Cooperating Validity Checker 4, is a string/SMT solver that reduces its queries to SAT-formulae and solves them with a SAT-solver backend. It supports different \textit{Theories}, generates proofs and satisfying assignments. CVC4 supports highly parallelized execution. It is a collaborative effort between Stanford University and the University of Iowa.
+
+CVC4 has been succeeded by CVC5 \cite{cvc5}. For the benchmarks we use version 1.8, which is the final release version of CVC4.
+
+\subsection{CVC5}
+CVC5 \cite{cvc5} is the successor to CVC4. CVC5 introduced a new proof engine, procedures for fixed-size bit vectors and non-linear arithmetic. Barbosa et al. \cite{cvc5} also claim that it outperforms CVC4 in terms of speed. As CVC4 has not been fully dethroned by its successor yet, we include both solvers for our benchmarks.
+
+For our benchmarks we use version 1.0.3 of CVC5.
+
+\subsection{Z3}
+Z3 \cite{z3} is a general-purpose SMT solver published by Microsoft Research. It can handle quantifier-free as well as quantified formulae. Z3 cannot generate proofs, but it can generate models of satisfying assignments. Z3 contains multiple sub-solvers, called \textit{tactics}.
+
+For our benchmarks we use version 4.8.10 of Z3. We benchmark against the following two state-of-the-art tactics.
+
+\subsubsection{Z3seq}
+Z3seq \cite{z3} is a tactic that processes strings in a prefix-based manner. Similar to our approach, Z3seq uses regex derivatives to check regex constraints. It differs from our approach in that it checks constraints and equations separately.
+
+\subsubsection{Z3str3}
+Z3str3 \cite{z3str3} is a solver tactic for Z3 that introduces a technique labeled \textit{theory-aware branching}, which extends Z3's branching heuristics allowing to pass information to the internal SAT-solver. Berzish et al. \cite{z3str3} claim, this technique improves the search step in Z3's solving engine, allowing for better performance.
+
+\subsection{Woorpje}
+The Woorpje string solver \cite{woorpje} specializes on word equations where every variable has an upper length bound, guessing unknown lengths. It reduces the bounded word equation to a SAT problem and solves it via the Glucose SAT solver \cite{glucose}. Woorpje also supports regex constraints and offers different solving strategies. More interestingly, Woorpje has one strategy that uses the Nielsen transformation, although Day et al. \cite{woorpje} refer to it as \textit{Levi's lemma}. As they use the traditional Nielsen transformation, this strategy only works for word equations without regex constraints. We will therefore use it only for benchmarking on \texttt{benchmarkset-2\:\textbackslash\:benchmarkset-1}. In the benchmarks, we will refer to Woorpje with the general strategy as \texttt{woorpje}, and to Woorpje with Levi's lemma as a strategy as \texttt{woorpje-levi}. This strategy is interesting because we can benchmark against a string solver that uses the same approach as ours.
+
+In our benchmarks we use the release \texttt{spin22} of Woorpje.
+
+\subsection{Noodler}
+Noodler \cite{noodler} is the only string solver we are aware of that solves the word equation and the regex constraints together. Blahoudek et al. do this by representing each variable by an automaton and modeling the equation as concatenations of these automata.
+
+As Noodler is not versionated, we used the commit \texttt{f752e79}\footnote{https://github.com/vhavlena/Noodler/commit/f752e79eb9c0cded7e7e1bf73476c3b1ef1f25b1} in our benchmarks.
+
+This concludes the setup for our benchmarks. Figure \ref{fig:feature-matrix} gives a compact overview of the different string solvers we will use. Our solver is listed at the bottom as \texttt{nielsen-transformation}. We use version 0.1.0 of our solver\footnote{https://github.com/meipp/nielsen-transformation/releases/tag/0.1.0}.
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+    \hline
+    Solver & Version & State of the art & Can solve regex & Combined solving \\
+    \hline
+    CVC4                   &    1.8 & \cellcolor{green!25}\cmark & \cellcolor{green!25}\cmark &
+    \cellcolor{red!25}\xmark \\
+    \hline
+    CVC5                   &  1.0.3 & \cellcolor{green!25}\cmark & \cellcolor{green!25}\cmark &
+    \cellcolor{red!25}\xmark \\
+    \hline
+    Z3Seq                  & 4.8.10 & \cellcolor{green!25}\cmark & \cellcolor{green!25}\cmark &
+    \cellcolor{red!25}\xmark \\
+    \hline
+    Z3str3                 & 4.8.10 & \cellcolor{green!25}\cmark & \cellcolor{green!25}\cmark &
+    \cellcolor{red!25}\xmark \\
+    \hline
+    woorpje                & spin22 &   \cellcolor{red!25}\xmark & \cellcolor{green!25}\cmark &
+    \cellcolor{red!25}\xmark \\
+    \hline
+    woorpje-levi           & spin22 &   \cellcolor{red!25}\xmark &   \cellcolor{red!25}\xmark &
+    \cellcolor{red!25}\xmark \\
+    \hline
+    noodler                & f752e79 &   \cellcolor{red!25}\xmark & \cellcolor{green!25}\cmark &
+    \cellcolor{green!25}\cmark \\
+    \hline
+    nielsen-transformation &  0.1.0 &   \cellcolor{red!25}\xmark & \cellcolor{green!25}\cmark &
+    \cellcolor{green!25}\cmark \\
+    \hline
+\end{tabular}
+\caption{Comparison of previously introduced solvers. \textit{Combined solving} means that the solver solves the constraints and the word equation in a combined manner}
+\label{fig:feature-matrix}
+\end{center}
+\end{figure}
+
+\section{ZaligVinder}
+To run the benchmarks we use the benchmarking framework ZaligVinder \cite{zaligvinder}. ZaligVinder brings benchmark sets and string solvers together on a shared platform. We configure it with test instances from our benchmark sets. For each solver, a shell command has to be registered that gets invoked on each test instance. ZaligVinder then counts all classifications. In case a solver does not terminate, ZaligVinder will count it as a timeout. Afterwards ZaligVinder produces tables for the measurements, in the format of appendix \ref{appendix_benchmarks}.
