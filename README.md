@@ -4,4 +4,4 @@ This is my master's thesis on **extending the Nielsen transformation with regex 
 
 You can find the thesis under [thesis.pdf](./thesis.pdf) and the presentation slides under [presentation.pdf](./presentation.pdf).
 
-You can find implementation of the solver [here](/meipp/nielsen-transformation).
+You can find implementation of the solver [here](https://github.com/meipp/nielsen-transformation).
